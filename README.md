@@ -22,16 +22,19 @@ The accepted architecture decision is
 The collection rules are in
 [docs/editorial/SOURCE_COLLECTION_POLICY.md](docs/editorial/SOURCE_COLLECTION_POLICY.md).
 
-## Development
+## Local CI
 
-The application is intended to run in its pinned Docker environment. Prepare
-the databases and run the test suite with the repository image once it has
-been built:
+GitHub Actions is not used. Run the complete CI gate locally in the pinned
+Docker environment:
 
 ```bash
-bin/rails db:prepare
-bin/rails test
+docker build --target ci -t the-news:ci .
+docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp --volume "$PWD:/rails" --workdir /rails the-news:ci bin/ci
 ```
+
+The gate starts from a clean test database, then runs Ruby style checks, gem
+and importmap vulnerability audits, Brakeman, Rails tests, seed validation, and
+real system tests when `test/system/**/*_test.rb` contains any.
 
 Do not enable a source collector until its source and approved policy are in
 the source register.

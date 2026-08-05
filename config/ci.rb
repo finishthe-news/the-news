@@ -2,6 +2,7 @@
 
 CI.run do
   step "Setup", "bin/setup --skip-server"
+  step "Setup: Test database", "env RAILS_ENV=test bin/rails db:drop db:create db:schema:load"
 
   step "Style: Ruby", "bin/rubocop"
 
@@ -11,8 +12,8 @@ CI.run do
   step "Tests: Rails", "bin/rails test"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
 
-  # Optional: Run system tests
-  # step "Tests: System", "bin/rails test:system"
+  system_tests = Dir.glob(File.expand_path("../test/system/**/*_test.rb", __dir__))
+  step "Tests: System", "bin/rails test:system" if system_tests.any?
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.
