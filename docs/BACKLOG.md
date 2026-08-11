@@ -30,7 +30,10 @@ remain visible before production launch.
 - [ ] Qualify additional US-focused sources individually, beginning with Texas
   Tribune, CalMatters, Roll Call, and CBS News.
 
-- [ ] Apply source-specific raw-content retention and cleanup automatically.
+- [ ] Revisit raw-content retention after measuring the private burn-in. Source
+  policies currently declare a 90-day retention target, but Robert explicitly
+  deferred automatic deletion while we determine whether longer evidence
+  storage is operationally useful.
 
 ## Hourly operation
 

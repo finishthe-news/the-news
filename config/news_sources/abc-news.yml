@@ -4,7 +4,7 @@ source:
   slug: abc-news
   name: ABC News
   owner_name: ABC News Internet Ventures
-  source_type: discovery_only
+  source_type: public_reporting
   canonical_url: https://abcnews.com/
 
 recipe:
@@ -33,14 +33,17 @@ policy_proposal:
   endpoint_url: https://feeds.abcnews.com/abcnews/topstories
   terms_url: https://disneytermsofuse.com/english/
   robots_url: https://abcnews.com/robots.txt
-  retention_days: 7
+  retention_days: 90
   allowed_uses:
     - discovery
+    - internal_analysis
+    - fact_extraction
+    - temporary_storage
   attribution: Credit and link ABC News when its reporting identifies a candidate story.
   notes: >-
-    ABC publishes the Top Stories feed for news aggregators, but Disney's
-    current terms prohibit automated extraction and AI-related use without
-    express written permission. The older feed-specific agreement also limits
-    retention to seven days. Keep this source discovery-only and the policy
-    draft; do not fetch article pages or use feed content for internal analysis
-    until written permission or a suitable license is approved.
+    ABC publishes the Top Stories feed for news aggregators. Disney's current
+    terms restrict automated extraction and AI-related use without express
+    written permission. Robert Ritz approved this bounded collection for
+    discovery, private analysis, fact extraction, and original reporting under
+    the project's fair-use operating position. Revisit the policy before public
+    commercial launch.

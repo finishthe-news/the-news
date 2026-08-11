@@ -32,7 +32,7 @@ policy_proposal:
   endpoint_url: https://www.pbs.org/newshour/feeds/rss/headlines
   terms_url: https://www.pbs.org/about/about-pbs/terms-of-use/
   robots_url: https://www.pbs.org/robots.txt
-  retention_days: 30
+  retention_days: 90
   allowed_uses:
     - discovery
     - internal_analysis
@@ -41,6 +41,8 @@ policy_proposal:
   attribution: Credit and link PBS NewsHour or the named wire service when its reporting supports a claim.
   notes: >-
     PBS publishes this headlines feed and robots.txt permits the NewsHour paths
-    with a one-second crawl delay, but PBS's terms prohibit commercial
-    exploitation of its information. Keep this policy draft and obtain legal
-    or publisher approval before production collection or commercial use.
+    with a one-second crawl delay. PBS's terms restrict commercial exploitation
+    of its information. Robert Ritz approved this bounded collection for
+    discovery, private analysis, fact extraction, and original reporting under
+    the project's fair-use operating position. Revisit the policy before public
+    commercial launch.
