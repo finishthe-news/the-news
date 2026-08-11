@@ -30,6 +30,14 @@ remain visible before production launch.
 - [ ] Qualify additional US-focused sources individually, beginning with Texas
   Tribune, CalMatters, Roll Call, and CBS News.
 
+- [ ] Repair or replace the ABC News extractor. The 2026-08-11 qualification
+  reached its 10-minute timeout at the 25-article cap and persisted zero
+  documents. Keep the source inactive until a bounded run completes.
+
+- [ ] Repair or replace the Christian Science Monitor extractor. The 2026-08-11
+  qualification returned six dated records but only 27-30 words per article.
+  Keep the source inactive until it produces substantive article text.
+
 - [ ] Revisit raw-content retention after measuring the private burn-in. Source
   policies currently declare a 90-day retention target, but Robert explicitly
   deferred automatic deletion while we determine whether longer evidence
