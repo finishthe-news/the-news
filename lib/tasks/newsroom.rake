@@ -20,13 +20,15 @@ namespace :newsroom do
     task calibre: :environment do
       slug = ENV.fetch("SOURCE")
       slot_at = Time.iso8601(ENV.fetch("SLOT_AT", Time.current.beginning_of_hour.iso8601))
-      cycle, = NewsCollectionCycle.begin!(slot_at:, source_slugs: [ slug ])
-      cycle.mark_running!
-      NewsSourceCollectionJob.perform_now(
-        slug,
-        slot_at: slot_at.iso8601,
-        cycle_id: cycle.id
-      )
+      cycle, created = NewsCollectionCycle.begin!(slot_at:, source_slugs: [ slug ])
+      if created
+        cycle.mark_running!
+        NewsSourceCollectionJob.perform_now(
+          slug,
+          slot_at: slot_at.iso8601,
+          cycle_id: cycle.id
+        )
+      end
 
       slot = Source.find_by!(slug:).news_collection_slots.find_by!(slot_at: slot_at.beginning_of_hour)
       puts({
