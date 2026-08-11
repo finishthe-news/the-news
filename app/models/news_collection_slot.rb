@@ -9,6 +9,7 @@ class NewsCollectionSlot < ApplicationRecord
 
   belongs_to :source
   belongs_to :collection_run, optional: true
+  belongs_to :news_collection_cycle, optional: true
 
   validates :slot_at, :claimed_at, :lease_expires_at, presence: true
   validates :slot_at, uniqueness: { scope: :source_id }
@@ -18,14 +19,18 @@ class NewsCollectionSlot < ApplicationRecord
   validate :timestamps_match_status
 
   class << self
-    def claim(source:, slot_at:, now: Time.current, lease_duration: 1.hour)
+    def claim(source:, slot_at:, cycle: nil, now: Time.current, lease_duration: 1.hour)
       source.with_lock do
         slot = find_by(source:, slot_at:)
+        slot.news_collection_cycle = cycle if slot && cycle && slot.news_collection_cycle_id.nil?
+        if slot && cycle && slot.news_collection_cycle_id != cycle.id
+          raise ArgumentError, "slot belongs to another collection cycle"
+        end
         return if slot&.status_succeeded?
         return if slot&.status_claimed? && slot.lease_expires_at > now
         return if active_for_source(source:, now:).where.not(id: slot&.id).exists?
 
-        slot ||= new(source:, slot_at:, attempts: 0)
+        slot ||= new(source:, slot_at:, news_collection_cycle: cycle, attempts: 0)
         slot.assign_attributes(
           status: "claimed",
           attempts: slot.attempts + 1,
@@ -87,5 +92,6 @@ class NewsCollectionSlot < ApplicationRecord
     raise InvalidTransition, "only a claimed slot can finish" unless status_claimed?
 
     update!(status:, collection_run:, finished_at: now)
+    news_collection_cycle&.refresh_completion!(now:)
   end
 end

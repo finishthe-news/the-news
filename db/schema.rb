@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_050000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_083000) do
   create_table "artifacts", force: :cascade do |t|
     t.integer "byte_size"
     t.string "content_hash"
@@ -259,6 +259,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_050000) do
     t.index ["document_snapshot_id"], name: "index_evidence_items_on_document_snapshot_id"
   end
 
+  create_table "news_collection_cycles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "dispatched_at", null: false
+    t.json "expected_source_slugs", default: [], null: false
+    t.datetime "finished_at"
+    t.datetime "slot_at", null: false
+    t.string "status", default: "dispatching", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slot_at"], name: "index_news_collection_cycles_on_slot_at", unique: true
+  end
+
   create_table "news_collection_slots", force: :cascade do |t|
     t.integer "attempts", default: 1, null: false
     t.datetime "claimed_at", null: false
@@ -266,11 +277,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_050000) do
     t.datetime "created_at", null: false
     t.datetime "finished_at"
     t.datetime "lease_expires_at", null: false
+    t.integer "news_collection_cycle_id"
     t.datetime "slot_at", null: false
     t.integer "source_id", null: false
     t.string "status", default: "claimed", null: false
     t.datetime "updated_at", null: false
     t.index ["collection_run_id"], name: "index_news_collection_slots_on_collection_run_id"
+    t.index ["news_collection_cycle_id"], name: "index_news_collection_slots_on_news_collection_cycle_id"
     t.index ["source_id", "slot_at"], name: "index_news_collection_slots_on_source_id_and_slot_at", unique: true
     t.index ["source_id", "status", "lease_expires_at"], name: "idx_news_collection_slots_active_lease"
     t.index ["source_id"], name: "index_news_collection_slots_on_source_id"
@@ -421,6 +434,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_050000) do
   add_foreign_key "evidence_items", "claims"
   add_foreign_key "evidence_items", "document_snapshots"
   add_foreign_key "news_collection_slots", "collection_runs"
+  add_foreign_key "news_collection_slots", "news_collection_cycles"
   add_foreign_key "news_collection_slots", "sources"
   add_foreign_key "source_documents", "sources"
   add_foreign_key "source_policies", "sources"

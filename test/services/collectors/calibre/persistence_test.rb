@@ -197,6 +197,25 @@ class Collectors::Calibre::PersistenceTest < ActiveSupport::TestCase
     ).valid?
   end
 
+  test "a retry can attach a pre-cycle failed slot to its coordinator receipt" do
+    slot_at = Time.zone.parse("2026-08-11 12:00:00")
+    now = Time.zone.parse("2026-08-11 12:05:00")
+    slot = NewsCollectionSlot.claim(source: @source, slot_at:, now:)
+    slot.fail!(now: now + 1.minute)
+    cycle, = NewsCollectionCycle.begin!(slot_at:, source_slugs: [ @source.slug ], now:)
+
+    retried = NewsCollectionSlot.claim(
+      source: @source,
+      slot_at:,
+      cycle:,
+      now: now + 2.minutes
+    )
+
+    assert_equal slot, retried
+    assert_equal cycle, retried.news_collection_cycle
+    assert_equal 2, retried.attempts
+  end
+
   private
 
   def persister(run)

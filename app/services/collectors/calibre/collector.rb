@@ -21,12 +21,14 @@ module Collectors
         source:,
         manifest:,
         runner: RecipeRunner.new,
+        collector_identity: -> { Collectors::CollectorIdentity.value },
         clock: -> { Time.current },
         run_parent: Rails.root.join("tmp/calibre-runs")
       )
         @source = source
         @manifest = manifest
         @runner = runner
+        @collector_identity = collector_identity
         @clock = clock
         @run_parent = Pathname(run_parent)
       end
@@ -35,6 +37,7 @@ module Collectors
         validate_source!
         policy = @source.approved_policy
         raise MissingApprovedPolicy, @source.slug unless policy
+        collector_identity = @collector_identity.call
 
         run = @source.collection_runs.create!(
           source_policy: policy,
@@ -56,6 +59,7 @@ module Collectors
             collection_run: run,
             run_root:,
             allowed_hosts: @manifest.discovery.article_hosts + @manifest.discovery.redirect_hosts,
+            collector_identity:,
             clock: @clock
           ).call(records: bridge.records, observations: bridge.observations)
 

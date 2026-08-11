@@ -5,13 +5,18 @@ class NewsSourceCollectionJob < ApplicationJob
     key: ->(source_slug, **) { "news-source:#{source_slug}" },
     duration: 2.hours
 
-  def perform(source_slug, slot_at:)
+  def perform(source_slug, slot_at:, cycle_id:)
     manifest = Collectors::Calibre::SourceRegistry.new.fetch(source_slug)
-    source = Source.find_by!(slug: source_slug, active: true)
+    source = Source.find_by!(slug: source_slug)
+    cycle = NewsCollectionCycle.find(cycle_id)
     slot_time = Time.iso8601(slot_at).in_time_zone.beginning_of_hour
+    raise ArgumentError, "collection cycle slot does not match" unless cycle.slot_at == slot_time
+    raise ArgumentError, "source is not expected by collection cycle" unless cycle.expected_source_slugs.include?(source_slug)
+
     slot = NewsCollectionSlot.claim(
       source:,
       slot_at: slot_time,
+      cycle:,
       lease_duration: manifest.limits.timeout_seconds.seconds + 5.minutes
     )
     return unless slot

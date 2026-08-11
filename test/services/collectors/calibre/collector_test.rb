@@ -61,6 +61,21 @@ class Collectors::Calibre::CollectorTest < ActiveSupport::TestCase
     assert_empty @source.collection_runs
   end
 
+  test "validates collector identity before invoking Calibre" do
+    runner = Object.new
+    runner.define_singleton_method(:call) { |**| flunk("Calibre must not run without a collector identity") }
+    collector = Collectors::Calibre::Collector.new(
+      source: @source,
+      manifest: manifest,
+      runner:,
+      collector_identity: -> { raise Collectors::CollectorIdentity::MissingContact, "missing" },
+      run_parent: @run_parent
+    )
+
+    assert_raises(Collectors::CollectorIdentity::MissingContact) { collector.call }
+    assert_empty @source.collection_runs
+  end
+
   private
 
   def collector(runner)

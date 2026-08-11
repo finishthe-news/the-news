@@ -20,7 +20,13 @@ namespace :newsroom do
     task calibre: :environment do
       slug = ENV.fetch("SOURCE")
       slot_at = Time.iso8601(ENV.fetch("SLOT_AT", Time.current.beginning_of_hour.iso8601))
-      NewsSourceCollectionJob.perform_now(slug, slot_at: slot_at.iso8601)
+      cycle, = NewsCollectionCycle.begin!(slot_at:, source_slugs: [ slug ])
+      cycle.mark_running!
+      NewsSourceCollectionJob.perform_now(
+        slug,
+        slot_at: slot_at.iso8601,
+        cycle_id: cycle.id
+      )
 
       slot = Source.find_by!(slug:).news_collection_slots.find_by!(slot_at: slot_at.beginning_of_hour)
       puts({
@@ -30,6 +36,16 @@ namespace :newsroom do
         attempts: slot.attempts,
         collection_run_id: slot.collection_run_id
       }.to_json)
+    end
+
+    desc "Report whether the latest hourly collection window passes its soak gates"
+    task soak_report: :environment do
+      hours = Integer(ENV.fetch("HOURS", Collectors::Calibre::SoakReport::DEFAULT_HOURS.to_s), 10)
+      ending_slot = Time.iso8601(ENV.fetch("ENDING_SLOT", Time.current.beginning_of_hour.iso8601))
+      report = Collectors::Calibre::SoakReport.new(hours:).call(ending_slot:)
+
+      puts JSON.pretty_generate(report)
+      abort "collection soak has unresolved issues" unless report.fetch("passed")
     end
 
     desc "Collect Federal Register documents for DATE (YYYY-MM-DD, defaults to today)"
