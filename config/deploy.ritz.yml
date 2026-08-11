@@ -53,6 +53,8 @@ asset_path: /rails/public/assets
 builder:
   arch: amd64
   local: true
+  # The host driver can reach Ritz's loopback-only registry directly.
+  driver: docker
 
 ssh:
   user: ritz
