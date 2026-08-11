@@ -1,0 +1,55 @@
+# Private burn-in deployment on Ritz. It deliberately bypasses kamal-proxy and
+# binds the dashboard to loopback so the unfinished application is not public.
+service: the-news-ritz
+image: the-news
+
+servers:
+  web:
+    hosts:
+      - 127.0.0.1
+    proxy: false
+    options:
+      publish: "127.0.0.1:3030:80"
+  worker:
+    hosts:
+      - 127.0.0.1
+    cmd: bin/jobs
+
+retain_containers: 1
+
+registry:
+  server: localhost:5555
+
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - NEWS_COLLECTOR_CONTACT
+    - NEWSAPI_AI_KEY
+    - OPENROUTER_API_KEY
+  clear:
+    SOLID_QUEUE_IN_PUMA: false
+    RAILS_ASSUME_SSL: false
+    RAILS_FORCE_SSL: false
+    APP_HOSTS: "localhost,127.0.0.1"
+    DEPLOYMENT_LABEL: "Private burn-in · Ritz"
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+volumes:
+  - "/var/lib/the-news-ritz/storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+builder:
+  arch: amd64
+  local: true
+
+ssh:
+  user: ritz
+  keys:
+    - /home/ritz/.ssh/buzz-kamal
+  keys_only: true

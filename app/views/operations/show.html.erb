@@ -1,0 +1,132 @@
+<% content_for :title, "Collection operations · The News" %>
+
+<main class="operations-shell">
+  <header class="operations-header">
+    <div>
+      <p class="eyebrow">The News</p>
+      <h1>Collection operations</h1>
+      <p class="lede">A read-only view of publisher policies, hourly collection receipts, and corpus health.</p>
+    </div>
+    <div class="environment-badge">
+      <span class="status-dot"></span>
+      <%= ENV.fetch("DEPLOYMENT_LABEL", "Production") %>
+    </div>
+  </header>
+
+  <section class="metric-grid" aria-label="Collection summary">
+    <article class="metric-card">
+      <p>Active sources</p>
+      <strong><%= @source_statuses.count { |status| status.source.active? } %></strong>
+      <span>of <%= @source_statuses.size %> configured publishers</span>
+    </article>
+    <article class="metric-card">
+      <p>Canonical documents</p>
+      <strong><%= number_with_delimiter(@total_documents) %></strong>
+      <span>deduplicated by source and URL</span>
+    </article>
+    <article class="metric-card">
+      <p>Latest cycle</p>
+      <strong class="metric-word"><%= @cycles.first&.status&.humanize || "Waiting" %></strong>
+      <span><%= @cycles.first ? l(@cycles.first.slot_at, format: :short) : "No coordinator receipt yet" %></span>
+    </article>
+    <article class="metric-card <%= "metric-card--warning" unless @soak_report.fetch("passed") %>">
+      <p>24-hour acceptance</p>
+      <strong class="metric-word"><%= @soak_report.fetch("passed") ? "Passed" : "Running" %></strong>
+      <span><%= @soak_report.fetch("cycles_found") %> of 24 hourly receipts found</span>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Publishers</p>
+        <h2>Source readiness</h2>
+      </div>
+      <span class="read-only-badge">Read only</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Collection</th>
+            <th>Policy</th>
+            <th>Last receipt</th>
+            <th>Documents</th>
+            <th>Runs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @source_statuses.each do |status| %>
+            <tr>
+              <td>
+                <strong><%= status.source.name %></strong>
+                <small><%= status.source.source_type.humanize %></small>
+              </td>
+              <td><span class="pill pill--<%= status.source.active? ? "success" : "neutral" %>"><%= status.source.active? ? "Active" : "Paused" %></span></td>
+              <td><span class="pill pill--<%= status.policy&.status_approved? ? "success" : "warning" %>"><%= status.policy&.status&.humanize || "Missing" %></span></td>
+              <td>
+                <% if status.last_slot %>
+                  <strong><%= status.last_slot.status.humanize %></strong>
+                  <small><%= l(status.last_slot.slot_at, format: :short) %></small>
+                <% else %>
+                  <span class="muted">None yet</span>
+                <% end %>
+              </td>
+              <td><%= number_with_delimiter(status.document_count) %></td>
+              <td>
+                <span class="run-count run-count--success"><%= status.successful_runs %> passed</span>
+                <span class="run-count run-count--failed"><%= status.failed_runs %> failed</span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Receipts</p>
+        <h2>Hourly coordinator cycles</h2>
+      </div>
+      <span class="muted">Most recent 24</span>
+    </div>
+
+    <% if @cycles.any? %>
+      <div class="cycle-list">
+        <% @cycles.each do |cycle| %>
+          <article class="cycle-row">
+            <time datetime="<%= cycle.slot_at.iso8601 %>">
+              <strong><%= l(cycle.slot_at, format: "%b %-d · %H:%M UTC") %></strong>
+              <small><%= pluralize(cycle.expected_source_slugs.size, "expected source") %></small>
+            </time>
+            <div class="cycle-receipts">
+              <% cycle.news_collection_slots.sort_by { |slot| slot.source.slug }.each do |slot| %>
+                <span class="pill pill--<%= slot.status_succeeded? ? "success" : slot.status_failed? ? "failed" : "warning" %>">
+                  <%= slot.source.name %> · <%= slot.status %>
+                </span>
+              <% end %>
+              <% if cycle.news_collection_slots.empty? %>
+                <span class="muted">No source receipts</span>
+              <% end %>
+            </div>
+            <span class="pill pill--<%= cycle.status_completed? ? "success" : "warning" %>"><%= cycle.status.humanize %></span>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <strong>Waiting for the first coordinator cycle</strong>
+        <p>The scheduler will create an auditable receipt at the next hourly run.</p>
+      </div>
+    <% end %>
+  </section>
+
+  <footer class="operations-footer">
+    <span>Updated <%= l(@last_updated_at, format: :long) %></span>
+    <span>Calibre 9.11.0 · SQLite · Solid Queue</span>
+  </footer>
+</main>
