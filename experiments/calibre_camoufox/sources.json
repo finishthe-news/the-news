@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "associated_press",
+    "name": "Associated Press",
+    "country": "United States",
+    "homepage": "https://apnews.com/",
+    "recipe": "ap.recipe",
+    "discovery": { "type": "homepage", "url": "https://apnews.com/" }
+  },
+  {
+    "slug": "bbc",
+    "name": "BBC",
+    "country": "United Kingdom",
+    "homepage": "https://www.bbc.com/news",
+    "recipe": "bbc.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 3 }
+  },
+  {
+    "slug": "guardian",
+    "name": "The Guardian",
+    "country": "United Kingdom",
+    "homepage": "https://www.theguardian.com/international",
+    "recipe": "guardian.recipe",
+    "discovery": { "type": "homepage", "url": "https://www.theguardian.com/international" }
+  },
+  {
+    "slug": "npr",
+    "name": "NPR",
+    "country": "United States",
+    "homepage": "https://www.npr.org/",
+    "recipe": "npr.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 1 }
+  },
+  {
+    "slug": "cbc",
+    "name": "CBC",
+    "country": "Canada",
+    "homepage": "https://www.cbc.ca/news",
+    "recipe": "cbc_canada.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 3 }
+  },
+  {
+    "slug": "abc_australia",
+    "name": "ABC News Australia",
+    "country": "Australia",
+    "homepage": "https://www.abc.net.au/news/",
+    "recipe": "abc_au.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 3 }
+  },
+  {
+    "slug": "deutsche_welle",
+    "name": "Deutsche Welle",
+    "country": "Germany",
+    "homepage": "https://www.dw.com/en/",
+    "recipe": "deutsche_welle_en.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 3 }
+  },
+  {
+    "slug": "al_jazeera",
+    "name": "Al Jazeera English",
+    "country": "Qatar",
+    "homepage": "https://www.aljazeera.com/",
+    "recipe": "al_jazeera.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 1 }
+  },
+  {
+    "slug": "usa_today",
+    "name": "USA Today",
+    "country": "United States",
+    "homepage": "https://www.usatoday.com/",
+    "recipe": "usatoday.recipe",
+    "discovery": { "type": "homepage", "url": "https://www.usatoday.com/" }
+  },
+  {
+    "slug": "nbc_news",
+    "name": "NBC News",
+    "country": "United States",
+    "homepage": "https://www.nbcnews.com/",
+    "recipe": "msnbc.recipe",
+    "discovery": { "type": "recipe_feeds", "feed_limit": 3 }
+  }
+]

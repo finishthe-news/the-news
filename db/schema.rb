@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_050000) do
   create_table "artifacts", force: :cascade do |t|
     t.integer "byte_size"
     t.string "content_hash"
@@ -118,6 +118,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
     t.index ["artifact_id"], name: "index_deliveries_on_artifact_id"
     t.index ["edition_id", "channel", "destination_hash"], name: "index_deliveries_on_edition_channel_destination", unique: true
     t.index ["edition_id"], name: "index_deliveries_on_edition_id"
+  end
+
+  create_table "discovery_observations", force: :cascade do |t|
+    t.string "canonical_url"
+    t.integer "collection_run_id", null: false
+    t.datetime "created_at", null: false
+    t.string "discovered_url"
+    t.json "metadata", default: {}, null: false
+    t.datetime "observed_at", null: false
+    t.integer "position", null: false
+    t.datetime "published_at"
+    t.integer "source_document_id"
+    t.integer "source_id", null: false
+    t.datetime "source_updated_at"
+    t.datetime "updated_at", null: false
+    t.index ["collection_run_id", "position"], name: "index_discovery_observations_on_run_and_position", unique: true
+    t.index ["collection_run_id"], name: "index_discovery_observations_on_collection_run_id"
+    t.index ["source_document_id"], name: "index_discovery_observations_on_source_document_id"
+    t.index ["source_id", "canonical_url"], name: "index_discovery_observations_on_source_id_and_canonical_url"
+    t.index ["source_id"], name: "index_discovery_observations_on_source_id"
   end
 
   create_table "document_snapshots", force: :cascade do |t|
@@ -239,9 +259,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
     t.index ["document_snapshot_id"], name: "index_evidence_items_on_document_snapshot_id"
   end
 
+  create_table "news_collection_slots", force: :cascade do |t|
+    t.integer "attempts", default: 1, null: false
+    t.datetime "claimed_at", null: false
+    t.integer "collection_run_id"
+    t.datetime "created_at", null: false
+    t.datetime "finished_at"
+    t.datetime "lease_expires_at", null: false
+    t.datetime "slot_at", null: false
+    t.integer "source_id", null: false
+    t.string "status", default: "claimed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_run_id"], name: "index_news_collection_slots_on_collection_run_id"
+    t.index ["source_id", "slot_at"], name: "index_news_collection_slots_on_source_id_and_slot_at", unique: true
+    t.index ["source_id", "status", "lease_expires_at"], name: "idx_news_collection_slots_active_lease"
+    t.index ["source_id"], name: "index_news_collection_slots_on_source_id"
+  end
+
   create_table "source_documents", force: :cascade do |t|
     t.string "canonical_url", null: false
     t.datetime "created_at", null: false
+    t.datetime "discovery_updated_at"
     t.string "document_type"
     t.string "external_id", null: false
     t.string "language", default: "en", null: false
@@ -370,6 +408,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
   add_foreign_key "corrections", "story_versions", column: "superseded_story_version_id"
   add_foreign_key "deliveries", "artifacts"
   add_foreign_key "deliveries", "editions"
+  add_foreign_key "discovery_observations", "collection_runs"
+  add_foreign_key "discovery_observations", "source_documents"
+  add_foreign_key "discovery_observations", "sources"
   add_foreign_key "document_snapshots", "collection_runs"
   add_foreign_key "document_snapshots", "source_documents"
   add_foreign_key "document_snapshots", "source_policies"
@@ -379,6 +420,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
   add_foreign_key "event_cluster_documents", "source_documents"
   add_foreign_key "evidence_items", "claims"
   add_foreign_key "evidence_items", "document_snapshots"
+  add_foreign_key "news_collection_slots", "collection_runs"
+  add_foreign_key "news_collection_slots", "sources"
   add_foreign_key "source_documents", "sources"
   add_foreign_key "source_policies", "sources"
   add_foreign_key "story_claims", "claims"

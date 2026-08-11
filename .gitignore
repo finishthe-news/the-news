@@ -1,4 +1,6 @@
 /.bundle
+__pycache__/
+*.py[cod]
 /.env*
 !/.env.example
 /.kamal/secrets

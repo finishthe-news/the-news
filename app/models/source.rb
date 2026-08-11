@@ -9,6 +9,8 @@ class Source < ApplicationRecord
   has_many :source_policies, dependent: :restrict_with_error
   has_many :collection_runs, dependent: :restrict_with_error
   has_many :source_documents, dependent: :restrict_with_error
+  has_many :discovery_observations, dependent: :restrict_with_error
+  has_many :news_collection_slots, dependent: :restrict_with_error
 
   validates :name, :slug, :source_type, :owner_name, :canonical_url, presence: true
   validates :slug, uniqueness: true

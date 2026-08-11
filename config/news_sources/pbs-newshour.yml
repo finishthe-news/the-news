@@ -1,0 +1,46 @@
+version: 1
+
+source:
+  slug: pbs-newshour
+  name: PBS NewsHour
+  owner_name: NewsHour Productions LLC
+  source_type: public_reporting
+  canonical_url: https://www.pbs.org/newshour/
+
+recipe:
+  type: generic
+
+discovery:
+  feeds:
+    - url: https://www.pbs.org/newshour/feeds/rss/headlines
+  allowed_hosts:
+    article:
+      - www.pbs.org
+    redirect: []
+  update_strategy:
+    mode: unseen_only
+
+limits:
+  article_cap: 40
+  timeout_seconds: 900
+  requests_per_minute: 10
+  max_concurrency: 1
+
+policy_proposal:
+  status: draft
+  access_method: public_rss_and_html
+  endpoint_url: https://www.pbs.org/newshour/feeds/rss/headlines
+  terms_url: https://www.pbs.org/about/about-pbs/terms-of-use/
+  robots_url: https://www.pbs.org/robots.txt
+  retention_days: 30
+  allowed_uses:
+    - discovery
+    - internal_analysis
+    - fact_extraction
+    - temporary_storage
+  attribution: Credit and link PBS NewsHour or the named wire service when its reporting supports a claim.
+  notes: >-
+    PBS publishes this headlines feed and robots.txt permits the NewsHour paths
+    with a one-second crawl delay, but PBS's terms prohibit commercial
+    exploitation of its information. Keep this policy draft and obtain legal
+    or publisher approval before production collection or commercial use.

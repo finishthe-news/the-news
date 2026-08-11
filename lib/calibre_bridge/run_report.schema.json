@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finishthe.news/schemas/calibre-run-report-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_slug", "started_at", "finished_at", "elapsed_seconds", "exit_code", "calibre_exit_code", "outcome", "timed_out", "counts", "files", "instrumentation"],
+  "properties": {
+    "schema_version": { "const": "calibre-run-report/v1" },
+    "source_slug": { "type": "string", "minLength": 1 },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "elapsed_seconds": { "type": "number", "minimum": 0 },
+    "exit_code": { "type": "integer" },
+    "calibre_exit_code": { "type": "integer" },
+    "outcome": { "enum": ["succeeded", "no_changes", "failed"] },
+    "timed_out": { "type": "boolean" },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovered", "eligible", "skipped", "normalized"],
+      "properties": {
+        "discovered": { "type": "integer", "minimum": 0 },
+        "eligible": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "normalized": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["articles", "decisions", "log", "output_dir"],
+      "properties": {
+        "articles": { "type": "string" },
+        "decisions": { "type": "string" },
+        "log": { "type": "string" },
+        "output_dir": { "type": "string" }
+      }
+    },
+    "instrumentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["http_statuses", "final_redirects", "note"],
+      "properties": {
+        "http_statuses": { "const": false },
+        "final_redirects": { "const": false },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>The News — Newsroom Process Status</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f4f0e7;
+      --surface: #fffdf8;
+      --surface-2: #eee8dc;
+      --ink: #20211e;
+      --muted: #65675f;
+      --rule: #cec7b9;
+      --accent: #154e45;
+      --accent-soft: #dbe9e4;
+      --complete: #256044;
+      --complete-soft: #dfeee5;
+      --active: #8a5515;
+      --active-soft: #f6e7cd;
+      --planned: #62645f;
+      --planned-soft: #e8e6e0;
+      --warning: #8b382d;
+      --warning-soft: #f4dfdb;
+      --shadow: 0 16px 44px rgb(41 36 28 / 8%);
+      --radius: 18px;
+      --serif: Iowan Old Style, Palatino Linotype, Book Antiqua, Georgia, serif;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #181a18;
+        --surface: #212421;
+        --surface-2: #292c28;
+        --ink: #f2eee5;
+        --muted: #b7b8b0;
+        --rule: #454941;
+        --accent: #8fc8b8;
+        --accent-soft: #233d36;
+        --complete: #9bd0ae;
+        --complete-soft: #263c2d;
+        --active: #efc078;
+        --active-soft: #48381f;
+        --planned: #c2c4bd;
+        --planned-soft: #363934;
+        --warning: #f0a197;
+        --warning-soft: #4a2d29;
+        --shadow: none;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 3px solid var(--active); outline-offset: 3px; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
+
+    header {
+      border-bottom: 1px solid var(--rule);
+      background:
+        radial-gradient(circle at 80% 10%, var(--accent-soft), transparent 30rem),
+        var(--surface);
+    }
+
+    .masthead { padding: 20px 0 72px; }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 56px;
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .as-of { color: var(--muted); font-size: 0.82rem; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { text-wrap: balance; }
+
+    h1 {
+      max-width: 870px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(3rem, 8vw, 6.7rem);
+      font-weight: 600;
+      letter-spacing: -0.055em;
+      line-height: 0.95;
+    }
+
+    .dek {
+      max-width: 750px;
+      margin: 30px 0 0;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: clamp(1.18rem, 2.1vw, 1.6rem);
+      line-height: 1.45;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 24px;
+      margin-top: -28px;
+    }
+
+    .summary-card, .panel, .stage, .gate {
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card { padding: 30px; }
+    .summary-card p:last-child { margin-bottom: 0; }
+
+    .current {
+      border-color: color-mix(in srgb, var(--active) 50%, var(--rule));
+      background: linear-gradient(145deg, var(--active-soft), var(--surface) 70%);
+    }
+
+    .current strong { font-family: var(--serif); font-size: 1.45rem; }
+
+    .status-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      width: fit-content;
+      padding: 4px 10px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+
+    .working { color: var(--complete); background: var(--complete-soft); }
+    .in-progress { color: var(--active); background: var(--active-soft); }
+    .not-built { color: var(--planned); background: var(--planned-soft); }
+    .blocked { color: var(--warning); background: var(--warning-soft); }
+
+    main { padding: 82px 0 100px; }
+    section + section { margin-top: 100px; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 0.72fr 1.28fr;
+      gap: 40px;
+      align-items: end;
+      margin-bottom: 34px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1;
+    }
+
+    .section-head p { max-width: 650px; margin: 0; color: var(--muted); }
+
+    .pipeline {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: stage;
+    }
+
+    .pipeline::before {
+      position: absolute;
+      z-index: 0;
+      top: 24px;
+      bottom: 24px;
+      left: 25px;
+      width: 1px;
+      background: var(--rule);
+      content: "";
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 54px minmax(190px, 0.8fr) minmax(280px, 1.55fr) minmax(190px, 0.75fr);
+      gap: 20px;
+      align-items: start;
+      padding: 24px;
+      counter-increment: stage;
+    }
+
+    .stage::before {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--rule);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--muted);
+      content: counter(stage, decimal-leading-zero);
+      font: 700 0.75rem/1 var(--sans);
+    }
+
+    .stage-now { border-color: var(--active); }
+    .stage-now::after {
+      position: absolute;
+      inset: -1px auto -1px -1px;
+      width: 5px;
+      border-radius: var(--radius) 0 0 var(--radius);
+      background: var(--active);
+      content: "";
+    }
+
+    .stage h3 { margin: 2px 0 5px; font-family: var(--serif); font-size: 1.25rem; line-height: 1.2; }
+    .stage p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .stage .detail { color: var(--ink); }
+    .stage .artifact { font-size: 0.82rem; }
+    .stage .artifact strong { display: block; margin-bottom: 5px; color: var(--ink); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .flow-node {
+      position: relative;
+      min-height: 126px;
+      padding: 20px;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .flow-node:not(:last-child)::after {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      right: -20px;
+      color: var(--muted);
+      content: "→";
+      font-size: 1.25rem;
+      transform: translateY(-50%);
+    }
+
+    .flow-node small { display: block; margin-bottom: 8px; color: var(--accent); font-weight: 800; text-transform: uppercase; }
+    .flow-node strong { display: block; font-family: var(--serif); font-size: 1.12rem; line-height: 1.2; }
+    .flow-node span { display: block; margin-top: 8px; color: var(--muted); font-size: 0.8rem; }
+
+    .boundary-note {
+      margin-top: 18px;
+      padding: 18px 22px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--ink);
+    }
+
+    .evidence-grid, .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .panel { padding: 28px; }
+    .panel h3 { margin: 0 0 14px; font-family: var(--serif); font-size: 1.4rem; }
+    .panel p { color: var(--muted); }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--surface-2);
+    }
+
+    .metric strong { display: block; font-family: var(--serif); font-size: 1.55rem; line-height: 1; }
+    .metric span { display: block; margin-top: 7px; color: var(--muted); font-size: 0.72rem; line-height: 1.3; }
+
+    ul.clean { margin: 16px 0 0; padding-left: 1.2rem; }
+    ul.clean li + li { margin-top: 8px; }
+
+    .scorecard {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 18px;
+      margin-top: 18px;
+    }
+
+    .scorecard div { display: contents; }
+    .scorecard dt, .scorecard dd { padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+    .scorecard dt { color: var(--muted); }
+    .scorecard dd { margin: 0; font-weight: 800; }
+
+    .gate { overflow: hidden; }
+    .gate-head { padding: 18px 22px; background: var(--surface-2); }
+    .gate-head strong { font-family: var(--serif); font-size: 1.15rem; }
+    .gate-body { padding: 22px; }
+    .gate-body p { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+      font-size: 0.9rem;
+    }
+
+    caption { margin-bottom: 12px; color: var(--muted); text-align: left; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+    th { background: var(--surface-2); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    code {
+      padding: 0.12em 0.35em;
+      border-radius: 5px;
+      background: var(--surface-2);
+      font-size: 0.88em;
+    }
+
+    footer {
+      padding: 32px 0 56px;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid, .section-head, .evidence-grid, .decision-grid { grid-template-columns: 1fr; }
+      .stage { grid-template-columns: 44px 1fr; }
+      .stage .detail, .stage .artifact { grid-column: 2; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .flow-node:nth-child(2)::after { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .masthead { padding-bottom: 48px; }
+      .brand-row { align-items: flex-start; padding-bottom: 42px; }
+      h1 { font-size: clamp(3rem, 17vw, 4.8rem); }
+      main { padding-top: 64px; }
+      section + section { margin-top: 72px; }
+      .summary-card, .panel, .stage { padding: 20px; }
+      .stage { grid-template-columns: 38px 1fr; gap: 14px; }
+      .stage::before { width: 34px; height: 34px; }
+      .pipeline::before { left: 17px; }
+      .flow { grid-template-columns: 1fr; }
+      .flow-node::after { display: none; }
+      .metric-row { grid-template-columns: 1fr; }
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 660px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+    @media print {
+      :root { --paper: white; --surface: white; --ink: black; --muted: #444; --rule: #bbb; }
+      body { font-size: 10pt; }
+      .shell { width: 100%; }
+      header, main, footer { padding-left: 12mm; padding-right: 12mm; }
+      .masthead { padding-bottom: 24px; }
+      .brand-row { padding-bottom: 24px; }
+      main { padding-top: 24px; }
+      section + section { margin-top: 36px; }
+      .summary-grid { margin-top: 20px; }
+      .summary-card, .panel, .stage, .gate { box-shadow: none; break-inside: avoid; }
+      .stage { grid-template-columns: 40px 1fr 1.4fr 0.8fr; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell masthead">
+      <div class="brand-row">
+        <div class="brand">The News</div>
+        <div class="as-of">Process snapshot · 11 August 2026</div>
+      </div>
+      <p class="eyebrow">Newsroom system map</p>
+      <h1>From signal to finished edition.</h1>
+      <p class="dek">A living map of the evidence-first production process: what the system must do, what currently works, where human judgment enters, and what remains to be built.</p>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="summary-grid" aria-label="Current status summary">
+      <article class="summary-card current">
+        <p class="eyebrow">Current working edge</p>
+        <p><strong>Feed-gated Calibre collection, canonical Rails/SQLite persistence, local clustering, deterministic dossier creation, and schema-constrained editorial scoring now work as bounded experiments for a United States audience.</strong></p>
+        <p>The daily evidence window is locked to 2:00 AM cutoff-to-cutoff in <code>America/New_York</code>, with a 5:00 AM weekday publication. Monday spans Friday 2:00 AM through Monday 2:00 AM. New evidence may attach to active clusters from prior editions; unchanged clusters are not rescored.</p>
+      </article>
+      <aside class="summary-card">
+        <p class="eyebrow">Status language</p>
+        <div class="status-key">
+          <span class="badge working">Working experiment</span>
+          <span class="badge in-progress">In progress</span>
+          <span class="badge not-built">Not built</span>
+          <span class="badge blocked">Decision required</span>
+        </div>
+        <p>“Working” means demonstrated in the current prototype. It does not mean production-approved, deployed, or editorially validated at scale.</p>
+      </aside>
+    </div>
+
+    <section id="pipeline">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">End-to-end status</p>
+          <h2>The production line</h2>
+        </div>
+        <p>The sequence preserves a strict boundary between source material, verified claims, original writing, and publication. A green technical call never substitutes for an editorial gate.</p>
+      </div>
+
+      <ol class="pipeline">
+        <li class="stage">
+          <span><span class="badge in-progress">In progress</span></span>
+          <div><h3>Source policy &amp; registration</h3><p>Decide what may be collected and how it may be used.</p></div>
+          <p class="detail">The Federal Register and NewsAPI.ai experiments are preserved. A strict per-publisher manifest now declares identity, recipe, feed, allowed hosts, update semantics, operational limits, and a draft policy proposal. Agents cannot approve their own sources. PBS NewsHour and The Marshall Project need extraction cleanup; ABC News and Christian Science Monitor remain discovery-only after terms review. All policies remain draft.</p>
+          <p class="artifact"><strong>Artifact</strong>Versioned <code>SourcePolicy</code> and source register entry.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge working">Working experiment</span></span>
+          <div><h3>Discover &amp; collect</h3><p>Obtain candidate events and permitted source material.</p></div>
+          <p class="detail">The original ten-source Calibre run produced 653 schema-valid records and 606 unique URLs. A new wrapper now filters <code>parse_index()</code> and <code>parse_feeds()</code> results before Calibre schedules downloads. The first run fetches unseen articles; an unchanged second run still checks discovery but requests zero known article pages. In-run URL duplicates are removed before fetching.</p>
+          <p class="artifact"><strong>Artifact</strong><code>calibre-known-state/v1</code>, discovery-decision JSONL, normalized article JSONL, run report, and ignored per-source live evidence.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge working">Working experiment</span></span>
+          <div><h3>Normalize &amp; store articles</h3><p>Create stable inputs before clustering or scoring.</p></div>
+          <p class="detail">The production path now targets the canonical Rails database rather than the separate experimental corpus. <code>SourceDocument</code> stores stable identity and distinct publication, publisher-update, and trusted discovery-marker times. Append-only <code>DocumentSnapshot</code> records retain title-plus-body versions; discovery observations retain every fetch/skip decision. Leased hourly slots prevent duplicate or overlapping source runs and permit explicit recovery after a crashed lease.</p>
+          <p class="artifact"><strong>Artifact</strong>Rails SQLite <code>source_documents</code>, <code>document_snapshots</code>, <code>discovery_observations</code>, <code>collection_runs</code>, and <code>news_collection_slots</code>.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge working">Working experiment</span></span>
+          <div><h3>Form event clusters</h3><p>Group coverage of the same real-world episode.</p></div>
+          <p class="detail">The accepted experimental baseline embeds the 552-article frozen corpus with pinned BGE-small and applies average-linkage agglomerative clustering at cosine distance 0.145. It produced 53 clusters containing 146 articles; 42 clusters span multiple publishers. Manual review found strong same-event groups and a small number of tolerable false joins. The broader 0.200 view visibly overmerged topics and remains diagnostic only.</p>
+          <p class="artifact"><strong>Artifact</strong>Ignored JSON result, embeddings, and HTML cluster-review report with pairwise similarities and nearest excluded articles.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge working">Working experiment</span></span>
+          <div><h3>Build a ranking dossier</h3><p>Prepare bounded, relevant evidence for one event.</p></div>
+          <p class="detail">For a local cluster, deterministic code excludes bodies under 150 words, chooses one representative per publisher by within-cluster centrality, and includes no more than six sources. A substantial singleton is valid evidence; publisher count is reported to the model rather than used as an exclusion rule.</p>
+          <p class="artifact"><strong>Artifact</strong>Structured dossier and Markdown prompt containing event metadata, precomputed coverage, source provenance, and bounded article evidence.</p>
+        </li>
+
+        <li class="stage stage-now">
+          <span><span class="badge working">Working experiment</span></span>
+          <div><h3>Classify &amp; score importance</h3><p>Apply editorial dimensions consistently across events.</p></div>
+          <p class="detail">A strict OpenRouter JSON-schema call returns section, five scores, confidence, and a concise reason. A three-case local-corpus test separated a seven-publisher war cluster, a consequential United States singleton, and a low-stakes culture singleton without using article count as an importance shortcut.</p>
+          <p class="artifact"><strong>Artifact</strong>Validated score record; no publication decision.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Rank &amp; select clusters</h3><p>Compare candidates within sections and a finite edition budget.</p></div>
+          <p class="detail">The intended direction is deterministic comparison of model-produced dimensions, selecting the top candidates per category and then cutting to the final reading-length budget. The formula, category quotas, tie-breaking, and diversity rules are undecided.</p>
+          <p class="artifact"><strong>Artifact</strong>Proposed story list with inclusion rationale.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Extract atomic claims</h3><p>Turn source material into independently reviewable assertions.</p></div>
+          <p class="detail">Every claim must retain evidence, attribution, time, and one of four explicit states: confirmed, attributed, disputed, or unknown. Article prose must not become the writer’s narrative template.</p>
+          <p class="artifact"><strong>Artifact</strong><code>Claim</code> and claim-level <code>EvidenceItem</code> records.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Resolve evidence &amp; uncertainty</h3><p>Compare accounts before prose is written.</p></div>
+          <p class="detail">Contradictions, single-source claims, stale evidence, original-reporting attribution, and material unknowns must be surfaced. Primary sources should be added where available; unsupported inference cannot silently become fact.</p>
+          <p class="artifact"><strong>Artifact</strong>Reviewed claim set with warnings and unresolved questions.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Draft the story</h3><p>Write original inverted-pyramid reporting from approved claims.</p></div>
+          <p class="detail">The writer receives claims, evidence references, required attribution, approved quotations, and context—not a publisher article to rewrite. Daily stories must answer what happened, what is confirmed, who says what, why it matters, and what remains uncertain.</p>
+          <p class="artifact"><strong>Artifact</strong>Versioned original story draft linked to its claims.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Verify the draft</h3><p>Fail closed on unsupported or derivative prose.</p></div>
+          <p class="detail">Required checks include claim support, factual fidelity, attribution, quotation accuracy, source-text similarity, freshness, and risk-specific warnings. A generated draft is not a verified story.</p>
+          <p class="artifact"><strong>Artifact</strong>Verification report attached to a specific story version.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Human editorial review</h3><p>Inspect evidence and approve consequential decisions.</p></div>
+          <p class="detail">The official publication requires human approval at launch. The future editorial PWA must support cluster merge/split/reject decisions, claim-and-evidence review, passage editing, warnings, story approval, edition assembly, and correction handling.</p>
+          <p class="artifact"><strong>Artifact</strong>Append-only <code>EditorialDecision</code> and approval.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Assemble the finite edition</h3><p>Fit approved stories to the product promise.</p></div>
+          <p class="detail">The Top Ten targets ten stories and 10–15 minutes. The Complete Edition targets about 45 minutes. A slow day is not padded, and an important day does not become an endless feed.</p>
+          <p class="artifact"><strong>Artifact</strong>Canonical <code>Edition</code> containing immutable story versions.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Render &amp; publish</h3><p>Create every delivery format from one approved record.</p></div>
+          <p class="detail">Web, RSS, email, printable PDF, and EPUB must render from the same canonical edition. Renderers cannot rewrite reporting. Publication fails closed if evidence, approval, or any required artifact is missing.</p>
+          <p class="artifact"><strong>Artifact</strong>Format <code>Artifact</code> and auditable <code>Delivery</code> records.</p>
+        </li>
+
+        <li class="stage">
+          <span><span class="badge not-built">Not built</span></span>
+          <div><h3>Evaluate, update &amp; correct</h3><p>Measure quality and preserve accountable history.</p></div>
+          <p class="detail">Benchmark ranking and clustering decisions, monitor source and model drift, and review misses. Corrections create new story and edition history and propagate to every affected format; published text is never silently replaced.</p>
+          <p class="artifact"><strong>Artifact</strong>Evaluation set, audit events, and visible <code>Correction</code> records.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="architecture">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Architecture boundary</p>
+          <h2>Models advise; records decide.</h2>
+        </div>
+        <p>Deterministic code controls source eligibility, filtering, deduplication, schemas, and publication gates. Models handle bounded editorial tasks, and their outputs remain inspectable inputs—not silent authority.</p>
+      </div>
+
+      <div class="flow" aria-label="High-level data flow">
+        <div class="flow-node"><small>Input</small><strong>Permitted sources</strong><span>Policies, collection metadata, snapshots</span></div>
+        <div class="flow-node"><small>Reporting</small><strong>Events &amp; evidence</strong><span>Clusters, dossiers, claims, uncertainty</span></div>
+        <div class="flow-node"><small>Editorial</small><strong>Stories &amp; approval</strong><span>Scores, decisions, versions, edition</span></div>
+        <div class="flow-node"><small>Output</small><strong>One edition, five formats</strong><span>Web, RSS, email, PDF, EPUB</span></div>
+      </div>
+      <div class="boundary-note"><strong>Non-negotiable boundary:</strong> full article text may inform transient analysis under its source policy, but the writing stage receives verified claims and evidence references. The repository must not contain collected publisher text.</div>
+    </section>
+
+    <section id="evidence">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">What has been demonstrated</p>
+          <h2>Current evidence</h2>
+        </div>
+        <p>The first live experiment answers a narrow question: can the system make a bounded dossier from a real event and obtain a machine-valid editorial score?</p>
+      </div>
+
+      <div class="evidence-grid">
+        <article class="panel">
+          <span class="badge working">Calibre corpus</span>
+          <h3>Ten-source extraction run</h3>
+          <p>Maintained Calibre recipes retrieved complete configured editions and the collector normalized every extracted item against one schema.</p>
+          <div class="metric-row">
+            <div class="metric"><strong>653</strong><span>Collected records</span></div>
+            <div class="metric"><strong>606</strong><span>Unique URLs</span></div>
+            <div class="metric"><strong>771</strong><span>Median body words</span></div>
+          </div>
+          <ul class="clean">
+            <li>Ten of ten publisher recipes completed with no normalization errors.</li>
+            <li>Thirty-three items were under 150 words, mainly video, player, cartoon, or social entries.</li>
+            <li>Forty-seven duplicate feed appearances demonstrate the need for persistent identity and observation records.</li>
+            <li>Date recovery improved the frozen benchmark to 487 dated URLs out of 606; new collection now carries feed dates directly instead of fetching feeds twice.</li>
+            <li>A PBS qualification exposed malformed <code>struct_time</code> serialization; the bridge now emits RFC 3339 and Rails strictly rejects non-ISO dates instead of guessing.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <span class="badge working">Local dossier</span>
+          <h3>Nizhnekamsk drone-strike cluster</h3>
+          <p>Deterministic code selected the most central substantial article from six distinct publishers in a seven-publisher local cluster.</p>
+          <div class="metric-row">
+            <div class="metric"><strong>6</strong><span>Evidence articles</span></div>
+            <div class="metric"><strong>5,779</strong><span>Prompt tokens</span></div>
+            <div class="metric"><strong>$0.0052</strong><span>Measured call cost</span></div>
+          </div>
+          <ul class="clean">
+            <li>Evidence selection uses only stored cluster membership, body length, publisher identity, and pairwise similarity.</li>
+            <li>At most one article per publisher enters the prompt.</li>
+            <li>The model received publisher count and source geography but did not decide source eligibility.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <span class="badge working">Strict model call</span>
+          <h3>Three-case scoring control</h3>
+          <p>Every response matched the required JSON schema. The consequential singleton remained eligible and scored above the routine culture singleton, demonstrating why publisher count must not be a hard gate.</p>
+          <dl class="scorecard">
+            <div><dt>War cluster</dt><dd>4 · 3 · 3 · 4 · 2</dd></div>
+            <div><dt>U.S. rights singleton</dt><dd>4 · 4 · 3 · 5 · 3</dd></div>
+            <div><dt>Comedy-review singleton</dt><dd>0 · 1 · 2 · 1 · 1</dd></div>
+            <div><dt>Total input tokens</dt><dd>10,211</dd></div>
+            <div><dt>Total measured cost</dt><dd>$0.0097</dd></div>
+          </dl>
+          <p><strong>Calibration finding:</strong> the rubric produced directionally sensible separation, but full bodies make first-pass scoring too expensive at scale. The next HITL decision is a cheaper preliminary representation, not removing singletons by fiat.</p>
+        </article>
+
+        <article class="panel">
+          <span class="badge working">Automated checks</span>
+          <h3>Prototype verification</h3>
+          <ul class="clean">
+            <li>The expanded Rails suite passes with 39 tests and 201 assertions.</li>
+            <li>The Calibre bridge passes 15 Python tests, including a real Calibre 9.11 no-repeat network test.</li>
+            <li>Ten changed scoring files passed the configured RuboCop checks.</li>
+            <li>The scorer rejects invalid fields and out-of-range score values.</li>
+            <li>The local dossier tests check per-publisher diversity, substantial singleton admission, minimum-body rejection, and deterministic evidence selection.</li>
+          </ul>
+          <p>These checks validate the prototype’s mechanics. They do not establish editorial accuracy across many story types.</p>
+        </article>
+
+        <article class="panel">
+          <span class="badge blocked">Known limitations</span>
+          <h3>Not yet proven</h3>
+          <ul class="clean">
+            <li>Independent cluster precision and recall across the fixed Calibre corpus.</li>
+            <li>Content-level syndication detection across different domains.</li>
+            <li>Score consistency across sections, countries, and story types.</li>
+            <li>A ranking formula that produces a balanced finite edition.</li>
+            <li>Claim extraction, contradiction handling, original drafting, verification, or publication.</li>
+            <li>Per-publisher production collection and retention approval.</li>
+            <li>Exact per-request Calibre HTTP-status and final-redirect instrumentation.</li>
+            <li>Rails subprocess orchestration, pinned Calibre image packaging, and the enabled hourly coordinator.</li>
+            <li>Human precision and missed-merge labels for the 53 stricter clustering proposals.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="gates">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Human-in-the-loop</p>
+          <h2>Decision gates</h2>
+        </div>
+        <p>These are the points where review changes the record. HITL is a publication policy inside the common pipeline, not a parallel manual workflow.</p>
+      </div>
+
+      <div class="decision-grid">
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 1 · Source approval</strong></div>
+          <div class="gate-body"><p>Approve access, permitted uses, attribution, retention, rate limits, and production status before an adapter enters the source register.</p><span class="badge in-progress">NewsAPI.ai open</span></div>
+        </article>
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 2 · Cluster judgment</strong></div>
+          <div class="gate-body"><p>Merge, split, reject, or promote event candidates when vendor clustering or sparse coverage creates ambiguity.</p><span class="badge not-built">Desk UI needed</span></div>
+        </article>
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 3 · Rubric approval</strong></div>
+          <div class="gate-body"><p>Agree on generic anchored scores, then test them against deliberately varied stories before using model outputs in a ranking formula.</p><span class="badge in-progress">Current discussion</span></div>
+        </article>
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 4 · Claim resolution</strong></div>
+          <div class="gate-body"><p>Resolve contradictions, weak sourcing, attribution, uncertainty, and high-risk subjects before a claim set may be drafted.</p><span class="badge not-built">Workflow needed</span></div>
+        </article>
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 5 · Story approval</strong></div>
+          <div class="gate-body"><p>Review prose beside claims and evidence, clear factual and similarity warnings, and approve a specific immutable version.</p><span class="badge not-built">Required at launch</span></div>
+        </article>
+        <article class="gate">
+          <div class="gate-head"><strong>Gate 6 · Edition publication</strong></div>
+          <div class="gate-body"><p>Review the complete finite edition and publish only when every required story, approval, and format artifact is present.</p><span class="badge not-built">Fail closed</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="calls">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Calls and data</p>
+          <h2>Current experiment contract</h2>
+        </div>
+        <p>The prototype makes source retrieval explicit and gives the model one bounded classification task. It does not ask the model to filter publishers, verify claims, decide publication readiness, or write an article.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Inputs and outputs currently implemented for discovery and one selected event.</caption>
+          <thead><tr><th>Boundary</th><th>Call or process</th><th>Data produced</th><th>Storage</th></tr></thead>
+          <tbody>
+            <tr><td>Calibre bridge</td><td>Recipe discovery filtered against Rails-known state before download scheduling</td><td>Fetch/skip decisions, canonical URL, feed dates, extracted title and body paths, run metrics</td><td>Ignored per-source run directory</td></tr>
+            <tr><td>Rails normalizer</td><td>Strict schema/date validation, path confinement, normalization, and hashing</td><td><code>calibre-article/v1</code>, title-plus-body hash, distinct date provenance, bounded errors</td><td>Transient import records</td></tr>
+            <tr><td>Rails SQLite</td><td>Idempotent document, snapshot, observation, run, and hourly-slot persistence</td><td>Canonical articles, immutable content versions, discovery decisions, policy-linked receipts</td><td>Canonical application database</td></tr>
+            <tr><td>Dataset freezer</td><td>48-hour latest-version snapshot</td><td>552 articles, source counts, cutoff, unknown-date count, SHA-256 manifest</td><td>Ignored local JSONL and manifest</td></tr>
+            <tr><td>Local clustering</td><td>Pinned BGE-small plus average linkage</td><td>Two review partitions, pairwise similarities, nearest excluded articles, deterministic membership hash</td><td>Ignored local JSON and HTML</td></tr>
+            <tr><td>NewsAPI.ai</td><td>Three-view event discovery</td><td>Vendor URI, title, summary, date, location, concepts, article counts, discovery rank</td><td>Transient</td></tr>
+            <tr><td>NewsAPI.ai</td><td>Event info</td><td>Vendor title, date, location, country, concepts, article counts</td><td>Transient</td></tr>
+            <tr><td>NewsAPI.ai</td><td>Source aggregation</td><td>Publisher domains, geography, coverage counts</td><td>Transient</td></tr>
+            <tr><td>NewsAPI.ai</td><td>Three article queries</td><td>Importance-ranked, representative, and event-local full bodies</td><td>In memory only</td></tr>
+            <tr><td>Rails service</td><td>Deterministic local-cluster dossier construction</td><td>One substantial representative per publisher, maximum six, plus coverage metadata and Markdown prompt</td><td>Ignored experiment artifacts</td></tr>
+            <tr><td>OpenRouter</td><td>Schema-constrained score request</td><td>Section, five integer scores, confidence, reason, and usage</td><td>Ignored experiment artifacts</td></tr>
+            <tr><td>Future newsroom</td><td>Accepted editorial records</td><td>Clusters, claims, evidence, decisions, versions, editions, artifacts</td><td>Immutable or append-only where required</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="next">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Immediate agenda</p>
+          <h2>Next decisions</h2>
+        </div>
+        <p>Progress remains deliberately bounded. Each decision should be discussed, implemented, and tested before moving the system’s working edge forward.</p>
+      </div>
+
+      <div class="decision-grid">
+        <article class="panel"><p class="eyebrow">Locked</p><h3>Use anchored ranking dimensions</h3><p>Consequence, audience relevance, geographic reach, public interest, and novelty each have observable 0–5 anchors. Continue testing them on dissimilar events for drift and ambiguity.</p></article>
+        <article class="panel"><p class="eyebrow">Locked</p><h3>Use idempotent versioned storage</h3><p>Canonical URLs identify articles, content hashes identify immutable versions, and observations preserve every run and section appearance. Publication dates retain their source and confidence.</p></article>
+        <article class="panel"><p class="eyebrow">Locked</p><h3>Use cutoff-to-cutoff continuity</h3><p>Use 2:00 AM Eastern edition cutoffs, a Friday-to-Monday window for Monday, and persistent clusters that are rescored only when new evidence arrives. Preserve substantial singletons as candidates.</p></article>
+        <article class="panel"><p class="eyebrow">Now · HITL</p><h3>Qualify the US source roster</h3><p>Run one publisher at a time through the shared manifest, no-repeat, date, extraction-quality, and policy gates. Only then connect approved sources to the hourly Solid Queue coordinator.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <strong>The News · “Finish the news.”</strong><br>
+      This document records the current design and experiment status. The canonical product mission remains <a href="LAUNCH_MISSION.md">LAUNCH_MISSION.md</a>; source rules remain in <a href="editorial/SOURCE_COLLECTION_POLICY.md">SOURCE_COLLECTION_POLICY.md</a>; accepted limitations remain visible in <a href="BACKLOG.md">BACKLOG.md</a>.
+    </div>
+  </footer>
+</body>
+</html>

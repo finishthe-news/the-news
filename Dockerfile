@@ -9,15 +9,31 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.10
+ARG CALIBRE_VERSION=9.11.0
+ARG CALIBRE_SHA256=9cf6d10ad892a9c179fdc03c4f78105c880de1ba039f35813dd0f1910b4ce3d6
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+
+ARG CALIBRE_VERSION
+ARG CALIBRE_SHA256
 
 # Rails app lives here
 WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
+    apt-get install --no-install-recommends -y curl libegl1 libglx0 libice6 libjemalloc2 \
+      libopengl0 libsm6 libvips libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
+      libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon0 libxkbcommon-x11-0 \
+      python3 sqlite3 xz-utils && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
+    curl --fail --location --silent --show-error \
+      "https://download.calibre-ebook.com/${CALIBRE_VERSION}/calibre-${CALIBRE_VERSION}-x86_64.txz" \
+      --output /tmp/calibre.txz && \
+    echo "${CALIBRE_SHA256}  /tmp/calibre.txz" | sha256sum --check --strict && \
+    mkdir -p /opt/calibre && \
+    tar --extract --xz --file /tmp/calibre.txz --directory /opt/calibre && \
+    /opt/calibre/ebook-convert --version && \
+    rm /tmp/calibre.txz && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
@@ -25,6 +41,7 @@ ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development" \
+    CALIBRE_BIN="/opt/calibre/ebook-convert" \
     LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
 # Throw-away build stage to reduce size of final image

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finishthe.news/schemas/calibre-discovery-decision-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_slug", "hook", "discovered_url", "canonical_url", "title", "feed_published", "feed_updated", "source_updated_at", "known_source_updated_at", "decision", "reason"],
+  "properties": {
+    "schema_version": { "const": "calibre-discovery-decision/v1" },
+    "source_slug": { "type": "string", "minLength": 1 },
+    "hook": { "enum": ["parse_index", "parse_feeds"] },
+    "discovered_url": { "type": ["string", "null"] },
+    "canonical_url": { "type": ["string", "null"], "format": "uri" },
+    "title": { "type": ["string", "null"] },
+    "feed_published": { "type": ["string", "null"] },
+    "feed_updated": { "type": ["string", "null"] },
+    "source_updated_at": { "type": ["string", "null"], "format": "date-time" },
+    "known_source_updated_at": { "type": ["string", "null"], "format": "date-time" },
+    "decision": { "enum": ["fetch", "skip"] },
+    "reason": { "enum": ["unseen", "trusted_newer_update", "known_unchanged", "invalid_url", "duplicate_in_run", "article_cap"] }
+  }
+}

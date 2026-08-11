@@ -1,0 +1,53 @@
+version: 1
+
+source:
+  slug: christian-science-monitor
+  name: The Christian Science Monitor
+  owner_name: The Christian Science Publishing Society
+  source_type: discovery_only
+  canonical_url: https://www.csmonitor.com/
+
+recipe:
+  type: builtin
+  id: chr_mon.recipe
+
+discovery:
+  feeds:
+    - url: https://rss.csmonitor.com/feeds/usa
+    - url: https://rss.csmonitor.com/feeds/politics
+    - url: https://rss.csmonitor.com/feeds/world
+  allowed_hosts:
+    article:
+      - www.csmonitor.com
+    redirect:
+      - csmonitor.com
+  update_strategy:
+    mode: unseen_only
+
+limits:
+  article_cap: 10
+  timeout_seconds: 600
+  requests_per_minute: 6
+  max_concurrency: 1
+
+policy_proposal:
+  status: draft
+  access_method: public_rss
+  endpoint_url: https://rss.csmonitor.com/feeds/usa
+  terms_url: https://www.csmonitor.com/About/Terms
+  robots_url: https://www.csmonitor.com/robots.txt
+  retention_days: 0
+  allowed_uses:
+    - discovery
+  attribution: Credit and link The Christian Science Monitor when its reporting identifies a candidate story.
+  notes: >-
+    The Monitor's current terms limit its RSS files to personal viewing or
+    noncommercial sites providing hyperlinks and require written permission
+    for other non-personal uses. Do not activate this source or fetch article
+    pages for the commercial publication without written permission or a
+    suitable license. Robots currently permits ordinary article paths with a
+    one-second crawl delay, but that does not expand the permitted uses. The
+    pinned built-in recipe also contains commentary and lifestyle feeds beyond
+    the three news feeds declared here. The bridge now supports a manifest-feed
+    override for built-in recipes, but that override still requires an isolated
+    live test before any later activation.

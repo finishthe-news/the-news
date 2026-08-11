@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finishthe.news/schemas/collected-article-v1.json",
+  "title": "Collected article",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source", "article", "content", "acquisition"],
+  "properties": {
+    "schema_version": { "const": "collected-article/v1" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name", "homepage", "recipe_file"],
+      "properties": {
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "homepage": { "type": "string", "format": "uri" },
+        "recipe_file": { "type": "string" }
+      }
+    },
+    "article": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_url", "title", "language"],
+      "properties": {
+        "canonical_url": { "type": "string", "format": "uri" },
+        "title": { "type": "string" },
+        "authors": { "type": "array", "items": { "type": "string" } },
+        "published_at": { "type": ["string", "null"], "format": "date-time" },
+        "publication_date_source": {
+          "enum": ["article_markup", "recipe_log", "recipe_feed", "article_text", "url_path", null]
+        },
+        "publication_date_confidence": {
+          "enum": ["high", "medium", null]
+        },
+        "updated_at": { "type": ["string", "null"], "format": "date-time" },
+        "language": { "type": "string" },
+        "section": { "type": ["string", "null"] },
+        "description": { "type": ["string", "null"] }
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["body_text", "word_count", "content_hash"],
+      "properties": {
+        "body_text": { "type": "string" },
+        "word_count": { "type": "integer", "minimum": 0 },
+        "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "acquisition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested_url", "final_url", "retrieved_at", "http_status", "collector", "discovery_method", "warnings"],
+      "properties": {
+        "requested_url": { "type": "string", "format": "uri" },
+        "final_url": { "type": "string", "format": "uri" },
+        "retrieved_at": { "type": "string", "format": "date-time" },
+        "http_status": { "type": "integer" },
+        "collector": { "enum": ["calibre", "camoufox"] },
+        "discovery_method": { "enum": ["calibre_recipe", "recipe_feed", "recipe_homepage"] },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

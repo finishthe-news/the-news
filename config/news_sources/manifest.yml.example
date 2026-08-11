@@ -1,0 +1,44 @@
+version: 1
+
+source:
+  slug: example-news
+  name: Example News
+  owner_name: Example News Cooperative
+  source_type: public_reporting
+  canonical_url: https://www.example.com/
+
+recipe:
+  # generic: feeds below drive the shared BasicNewsRecipe; no id or path.
+  # builtin: add id: example_news.recipe.
+  # project: add path: lib/calibre_recipes/example-news.recipe.
+  type: generic
+
+discovery:
+  feeds:
+    - url: https://www.example.com/news.rss
+  allowed_hosts:
+    article:
+      - www.example.com
+    redirect: []
+  update_strategy:
+    mode: unseen_only
+
+limits:
+  article_cap: 100
+  timeout_seconds: 900
+  requests_per_minute: 10
+  max_concurrency: 1
+
+policy_proposal:
+  status: draft
+  access_method: public_rss_and_html
+  endpoint_url: https://www.example.com/news.rss
+  terms_url: https://www.example.com/terms
+  robots_url: https://www.example.com/robots.txt
+  retention_days: 30
+  allowed_uses:
+    - discovery
+    - internal_analysis
+    - fact_extraction
+  attribution: Credit and link Example News when its reporting supports a claim.
+  notes: Replace this example with findings from the source qualification review.

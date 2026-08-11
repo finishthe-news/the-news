@@ -1,0 +1,46 @@
+version: 1
+
+source:
+  slug: abc-news
+  name: ABC News
+  owner_name: ABC News Internet Ventures
+  source_type: discovery_only
+  canonical_url: https://abcnews.com/
+
+recipe:
+  type: generic
+
+discovery:
+  feeds:
+    - url: https://feeds.abcnews.com/abcnews/topstories
+  allowed_hosts:
+    article:
+      - abcnews.com
+    redirect:
+      - abcnews.go.com
+  update_strategy:
+    mode: unseen_only
+
+limits:
+  article_cap: 25
+  timeout_seconds: 600
+  requests_per_minute: 6
+  max_concurrency: 1
+
+policy_proposal:
+  status: draft
+  access_method: public_rss
+  endpoint_url: https://feeds.abcnews.com/abcnews/topstories
+  terms_url: https://disneytermsofuse.com/english/
+  robots_url: https://abcnews.com/robots.txt
+  retention_days: 7
+  allowed_uses:
+    - discovery
+  attribution: Credit and link ABC News when its reporting identifies a candidate story.
+  notes: >-
+    ABC publishes the Top Stories feed for news aggregators, but Disney's
+    current terms prohibit automated extraction and AI-related use without
+    express written permission. The older feed-specific agreement also limits
+    retention to seven days. Keep this source discovery-only and the policy
+    draft; do not fetch article pages or use feed content for internal analysis
+    until written permission or a suitable license is approved.

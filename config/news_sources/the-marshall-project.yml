@@ -1,0 +1,50 @@
+version: 1
+
+source:
+  slug: the-marshall-project
+  name: The Marshall Project
+  owner_name: The Marshall Project
+  source_type: public_reporting
+  canonical_url: https://www.themarshallproject.org/
+
+recipe:
+  type: generic
+
+discovery:
+  feeds:
+    - url: https://www.themarshallproject.org/rss/recent
+  allowed_hosts:
+    article:
+      - www.themarshallproject.org
+    redirect: []
+  update_strategy:
+    mode: unseen_only
+
+limits:
+  article_cap: 10
+  timeout_seconds: 600
+  requests_per_minute: 6
+  max_concurrency: 1
+
+policy_proposal:
+  status: draft
+  access_method: public_rss_and_html
+  endpoint_url: https://www.themarshallproject.org/rss/recent
+  terms_url: https://www.themarshallproject.org/about/privacy
+  robots_url: https://www.themarshallproject.org/robots.txt
+  retention_days: 30
+  allowed_uses:
+    - discovery
+    - internal_analysis
+    - fact_extraction
+    - temporary_storage
+  attribution: Credit and link The Marshall Project when its reporting supports a claim.
+  notes: >-
+    The Marshall Project publishes a recent-stories RSS feed, and its current
+    robots file permits public article paths. Its privacy page includes a short
+    user agreement but does not publish detailed automated-use terms. Some
+    individual articles offer separate Creative Commons republication terms;
+    do not infer a site-wide license or republish article text. Keep this
+    proposal draft pending review of the commercial internal-analysis workflow.
+    The generic extractor returns substantial story text but also retains site
+    navigation, series listings, impact promotion, and donation/footer chrome.

@@ -7,7 +7,10 @@ image: robertritz/the-news
 # Deploy to these servers.
 servers:
   web:
-    - 78.46.40.253
+    hosts:
+      - 78.46.40.253
+    # Keep the evaluation deployment private until DNS and publication are approved.
+    proxy: false
   worker:
     hosts:
       - 78.46.40.253
@@ -20,9 +23,8 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-proxy:
-  ssl: true
-  host: finishthe.news
+# Retain one rollback image without allowing this large Calibre image to pile up.
+retain_containers: 1
 
 # Where you keep your container images.
 registry:
@@ -36,6 +38,8 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - NEWS_COLLECTOR_CONTACT
+    - NEWSAPI_AI_KEY
+    - OPENROUTER_API_KEY
   clear:
     SOLID_QUEUE_IN_PUMA: false
 

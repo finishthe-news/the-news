@@ -8,6 +8,8 @@ class CollectionRun < ApplicationRecord
   belongs_to :source
   belongs_to :source_policy
   has_many :document_snapshots, dependent: :restrict_with_error
+  has_many :discovery_observations, dependent: :restrict_with_error
+  has_one :news_collection_slot, dependent: :restrict_with_error
 
   validates :adapter_name, :adapter_version, :started_at, presence: true
   validates :documents_seen, :documents_created, :snapshots_created,

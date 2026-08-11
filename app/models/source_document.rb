@@ -2,6 +2,7 @@ class SourceDocument < ApplicationRecord
   belongs_to :source
 
   has_many :document_snapshots, dependent: :restrict_with_error
+  has_many :discovery_observations, dependent: :restrict_with_error
   has_many :event_cluster_documents, dependent: :restrict_with_error
   has_many :event_clusters, through: :event_cluster_documents
 

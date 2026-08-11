@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finishthe.news/schemas/calibre-known-state-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_slug", "documents"],
+  "properties": {
+    "schema_version": { "const": "calibre-known-state/v1" },
+    "source_slug": { "type": "string", "minLength": 1 },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["canonical_url", "source_updated_at"],
+        "properties": {
+          "canonical_url": { "type": "string", "format": "uri" },
+          "source_updated_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finishthe.news/schemas/calibre-article-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_slug", "canonical_url", "requested_url", "title", "authors", "language", "section", "description", "dates", "body_text_path", "word_count", "content_hash", "acquisition"],
+  "properties": {
+    "schema_version": { "const": "calibre-article/v1" },
+    "source_slug": { "type": "string", "minLength": 1 },
+    "canonical_url": { "type": "string", "format": "uri" },
+    "requested_url": { "type": "string", "format": "uri" },
+    "title": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "language": { "type": "string" },
+    "section": { "type": ["string", "null"] },
+    "description": { "type": ["string", "null"] },
+    "dates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feed_published", "feed_updated", "article_published", "article_updated"],
+      "properties": {
+        "feed_published": { "type": ["string", "null"] },
+        "feed_updated": { "type": ["string", "null"] },
+        "article_published": { "type": ["string", "null"] },
+        "article_updated": { "type": ["string", "null"] }
+      }
+    },
+    "body_text_path": { "type": "string", "minLength": 1 },
+    "word_count": { "type": "integer", "minimum": 0 },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "acquisition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retrieved_at", "collector", "recipe_path"],
+      "properties": {
+        "retrieved_at": { "type": "string", "format": "date-time" },
+        "collector": { "const": "calibre" },
+        "recipe_path": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
