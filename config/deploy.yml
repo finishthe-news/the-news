@@ -28,7 +28,6 @@ retain_containers: 1
 
 # Where you keep your container images.
 registry:
-  server: ghcr.io
   username: robertritz
   password:
     - KAMAL_REGISTRY_PASSWORD
