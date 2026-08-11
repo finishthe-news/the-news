@@ -9,8 +9,10 @@ servers:
   web:
     hosts:
       - 78.46.40.253
-    # Keep the evaluation deployment private until DNS and publication are approved.
-    proxy: false
+    proxy:
+      host: app.finishthe.news
+      ssl: true
+      forward_headers: true
   worker:
     hosts:
       - 78.46.40.253
