@@ -18,7 +18,13 @@ servers:
 retain_containers: 1
 
 registry:
-  server: localhost:5555
+  # 127.0.0.1 is intentional: Kamal treats "localhost" as a registry that
+  # needs SSH forwarding, which collides when builder and target are one host.
+  server: 127.0.0.1:5555
+  # The loopback-only registry does not enforce authentication. These non-secret
+  # placeholders satisfy Docker's login flow without granting remote access.
+  username: local
+  password: local
 
 env:
   secret:
